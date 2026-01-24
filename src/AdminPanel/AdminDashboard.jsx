@@ -1,4 +1,6 @@
 import React from 'react';
+import HouseOwners from './HouseOwners';
+import Support from './Support';
 
 const AdminDashboard = () => {
   // Static Dummy Data
@@ -12,7 +14,7 @@ const AdminDashboard = () => {
     { title: "Total House Owners", value: "124", icon: "bi-house-heart" },
     { title: "Active Staff", value: "482", icon: "bi-people" },
     { title: "Open Jobs", value: "12", icon: "bi-briefcase" },
-    { title: "Pending KYC", value: "08", icon: "bi-shield-check" },
+    // { title: "Pending KYC", value: "08", icon: "bi-shield-check" },
   ];
 
   return (
@@ -48,7 +50,7 @@ const AdminDashboard = () => {
       {/* Summary Cards */}
       <div className="row mb-4">
         {summaryCards.map((card, idx) => (
-          <div className="col-md-3" key={idx}>
+          <div className="col-md-4" key={idx}>
             <div className="card sahayya-card p-3">
               <div className="d-flex align-items-center">
                 <div className="rounded-circle p-3 me-3" style={{ backgroundColor: '#FFF5F2', color: '#D98C7A' }}>
@@ -67,30 +69,9 @@ const AdminDashboard = () => {
       <div className="row">
         {/* Recent Activities */}
         <div className="col-md-8">
-          <div className="card sahayya-card p-4 h-100">
+          <div className=" sahayya-card p-4 ">
             <h5 className="fw-bold mb-4">Recent Activities</h5>
-            <div className="table-responsive">
-              <table className="table sahayya-table align-middle">
-                <thead>
-                  <tr>
-                    <th>User</th>
-                    <th>Action</th>
-                    <th>Time</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {recentActivities.map((act) => (
-                    <tr key={act.id}>
-                      <td>{act.user}</td>
-                      <td>{act.action}</td>
-                      <td className="text-muted">{act.time}</td>
-                      <td><span className="badge rounded-pill bg-light text-dark border">{act.status}</span></td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+         {/* <Support/> */}
             {/* Pagination UI */}
             <nav className="mt-auto">
               <ul className="pagination pagination-sm justify-content-end mb-0">

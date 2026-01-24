@@ -24,7 +24,7 @@ const MainLogin = () => {
             toast.success("Admin login successful! 🎉");
 
             setTimeout(() => {
-                navigate("/admin/AdminDashboard");
+                navigate("/admin/dashboard");
             }, 1500);
 
         } 

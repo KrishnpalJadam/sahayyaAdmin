@@ -1,158 +1,341 @@
-import React from 'react';
+import React, { useState } from "react";
 
 const Membership = () => {
-  // Static Dummy Data
-  const subscribers = [
-    { id: 1, user: "Amitabh Bachchan", plan: "Professional", price: "₹999/mo", expiry: "2026-05-12", status: "Active" },
-    { id: 2, user: "Deepika Padukone", plan: "Professional", price: "₹999/mo", expiry: "2026-08-20", status: "Active" },
-    { id: 3, user: "Ranbir Kapoor", plan: "Free", price: "₹0/mo", expiry: "-", status: "Active" },
-  ];
+  /* ================= PLAN STATE ================= */
+  const [plan, setPlan] = useState({
+    name: "Professional",
+    price: "999",
+    duration: "Monthly",
+    features: [
+      "Unlimited Staff",
+      "Background Verification",
+      "Featured Job Posts",
+    ],
+  });
+const [selectedOwner, setSelectedOwner] = useState(null);
+
+  const addFeature = () => {
+    setPlan({ ...plan, features: [...plan.features, ""] });
+  };
+
+  const updateFeature = (i, value) => {
+    const updated = [...plan.features];
+    updated[i] = value;
+    setPlan({ ...plan, features: updated });
+  };
+
+  const removeFeature = (i) => {
+    const updated = plan.features.filter((_, idx) => idx !== i);
+    setPlan({ ...plan, features: updated });
+  };
+
+  /* ================= SUBSCRIBERS ================= */
+const subscribers = [
+  {
+    id: 1,
+    name: "Amitabh Bachchan",
+    profile: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=100",
+
+    phone: "+91 98765 43210",
+    dob: "12/05/2025",
+    gender: "Male",
+
+    address: {
+      street: "Flat 402, Sunrise Apartments, MG Road",
+      city: "Mumbai",
+      state: "Maharashtra",
+      pincode: "400001",
+    },
+
+    residence: {
+      type: "Flat",
+      rooms: 3,
+    },
+
+    occupants: {
+      adults: 2,
+      children: 1,
+      elderly: 1,
+    },
+
+    pet: {
+      type: "Dog",
+      count: 1,
+    },
+
+    special:
+      "Senior citizen in the house. Staff should be calm and experienced.",
+
+    plan: "Professional",
+    price: "₹999",
+    duration: "Monthly",
+    nextBilling: "12 May 2026",
+    status: "Active",
+  },
+];
+
 
   return (
-    <div className="container-fluid p-4" style={{ minHeight: '100vh' }}>
+    <div className="container-fluid p-4">
       <style>{`
-        .sahayya-btn-primary {
-          background-color: #D98C7A !important;
-          border-color: #D98C7A !important;
-          color: white !important;
-        }
-        .sahayya-btn-primary:hover {
-          background-color: #c47b6a !important;
-          border-color: #c47b6a !important;
-        }
-        .sahayya-card {
-          border: none;
-          border-radius: 12px;
-          box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-        }
-        .sahayya-table thead th {
-          background-color: #f8f9fa;
-          color: #555;
-          font-weight: 600;
-          border-bottom: 2px solid #eee;
-        }
-        .plan-card-pro {
-          border: 2px solid #D98C7A;
-          background-color: white;
-        }
+        .sahayya-btn-primary { background:#D98C7A; color:#fff; border:none }
+        .sahayya-btn-primary:hover { background:#c47b6a }
+        .sahayya-card { border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,.05); border:none }
       `}</style>
 
-      {/* Page Header */}
-      <div className="d-flex justify-content-between align-items-center mb-4">
+      {/* HEADER */}
+      <div className="d-flex justify-content-between mb-4">
         <h2 className="fw-bold">Membership Plans</h2>
-        <button className="btn sahayya-btn-primary px-4">
-          <i className="bi bi-gear-fill me-2"></i>Manage Plan Settings
+        <button
+          className="btn sahayya-btn-primary"
+          data-bs-toggle="modal"
+          data-bs-target="#planModal"
+        >
+          + Add / Edit Plan
         </button>
       </div>
 
-      {/* Plan Cards Row */}
-      <div className="row g-4 mb-5">
+      {/* PLAN CARD */}
+      <div className="row mb-5">
         <div className="col-md-6">
-          <div className="card sahayya-card p-4 h-100">
-            <div className="d-flex justify-content-between align-items-start mb-3">
-              <div>
-                <h4 className="fw-bold mb-1">Free Tier</h4>
-                <p className="text-muted small">For casual household needs</p>
-              </div>
-              <h3 className="fw-bold">₹0<small className="fs-6 text-muted">/mo</small></h3>
-            </div>
-            <ul className="list-unstyled mb-4">
-              <li className="mb-2 small"><i className="bi bi-check2 text-success me-2"></i> Up to 2 Staff Members</li>
-              <li className="mb-2 small"><i className="bi bi-check2 text-success me-2"></i> Basic KYC Check</li>
-              <li className="mb-2 small text-muted text-decoration-line-through"><i className="bi bi-x text-danger me-2"></i> Priority Job Posting</li>
-            </ul>
-            <button className="btn btn-outline-secondary w-100 mt-auto" disabled>Default Plan</button>
-          </div>
-        </div>
-        <div className="col-md-6">
-          <div className="card sahayya-card p-4 h-100 plan-card-pro">
-            <div className="d-flex justify-content-between align-items-start mb-3">
-              <div>
-                <h4 className="fw-bold mb-1" style={{ color: '#D98C7A' }}>Professional</h4>
-                <p className="text-muted small">For busy households</p>
-              </div>
-              <h3 className="fw-bold">₹999<small className="fs-6 text-muted">/mo</small></h3>
-            </div>
-            <ul className="list-unstyled mb-4">
-              <li className="mb-2 small"><i className="bi bi-check2 text-success me-2"></i> Unlimited Staff Members</li>
-              <li className="mb-2 small"><i className="bi bi-check2 text-success me-2"></i> Advanced Background Verification</li>
-              <li className="mb-2 small"><i className="bi bi-check2 text-success me-2"></i> Featured Job Postings</li>
-            </ul>
-            <button className="btn sahayya-btn-primary w-100 mt-auto">Edit Plan Pricing</button>
-          </div>
-        </div>
-      </div>
+          <div className="card sahayya-card p-4 border">
+            <h4 className="fw-bold">{plan.name}</h4>
+            <p className="text-muted small">{plan.duration}</p>
 
-      {/* User Subscriptions Table */}
-      <div className="card sahayya-card p-4">
-        <h5 className="fw-bold mb-4">Subscribed House Owners</h5>
-        
-        {/* Search + Filter Row */}
-        <div className="row g-3 mb-4">
-          <div className="col-md-4">
-            <div className="input-group">
-              <span className="input-group-text bg-white border-end-0"><i className="bi bi-search"></i></span>
-              <input type="text" className="form-control border-start-0" placeholder="Search by owner name..." />
-            </div>
-          </div>
-          <div className="col-md-2">
-            <select className="form-select">
-              <option value="">All Plans</option>
-              <option value="pro">Professional</option>
-              <option value="free">Free</option>
-            </select>
-          </div>
-        </div>
+            <h3 className="fw-bold">₹{plan.price}</h3>
 
-        {/* Table */}
-        <div className="table-responsive">
-          <table className="table sahayya-table align-middle">
-            <thead>
-              <tr>
-                <th>Owner Name</th>
-                <th>Current Plan</th>
-                <th>Price</th>
-                <th>Next Billing</th>
-                <th>Status</th>
-                <th className="text-end">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {subscribers.map((sub) => (
-                <tr key={sub.id}>
-                  <td className="fw-bold">{sub.user}</td>
-                  <td>
-                    <span className={`badge ${sub.plan === 'Professional' ? 'bg-primary-subtle text-primary border border-primary-subtle' : 'bg-light text-dark'}`}>
-                      {sub.plan}
-                    </span>
-                  </td>
-                  <td>{sub.price}</td>
-                  <td>{sub.expiry}</td>
-                  <td>
-                    <span className="badge rounded-pill bg-success-subtle text-success">{sub.status}</span>
-                  </td>
-                  <td className="text-end">
-                    <button className="btn btn-sm btn-outline-secondary me-2"><i className="bi bi-pencil"></i></button>
-                    <button className="btn btn-sm btn-outline-danger"><i className="bi bi-x-circle"></i></button>
-                  </td>
-                </tr>
+            <ul className="small mt-3">
+              {plan.features.map((f, i) => (
+                <li key={i}>{f}</li>
               ))}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Pagination */}
-        <div className="d-flex justify-content-between align-items-center mt-4">
-          <span className="text-muted small">Showing 3 of 124 owners</span>
-          <nav>
-            <ul className="pagination pagination-sm mb-0">
-              <li className="page-item disabled"><span className="page-link">Previous</span></li>
-              <li className="page-item active"><span className="page-link" style={{backgroundColor: '#D98C7A', borderColor: '#D98C7A'}}>1</span></li>
-              <li className="page-item"><span className="page-link text-dark">Next</span></li>
             </ul>
-          </nav>
+
+            <div className="d-flex gap-2">
+              <button
+                className="btn btn-outline-secondary w-100"
+                data-bs-toggle="modal"
+                data-bs-target="#planModal"
+              >
+                Edit
+              </button>
+              <button className="btn btn-outline-danger w-100">
+                Delete
+              </button>
+            </div>
+          </div>
         </div>
       </div>
+
+      {/* SUBSCRIBERS TABLE */}
+      <div className="card sahayya-card p-4">
+        <h5 className="fw-bold mb-3">Subscribed House Owners</h5>
+
+        <table className="table align-middle">
+          <thead className="table-light">
+            <tr>
+              <th>Owner</th>
+              <th>Plan</th>
+              <th>Price</th>
+              <th>Duration</th>
+              <th>Next Billing</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {subscribers.map((s) => (
+              <tr key={s.id}>
+                <td>
+                  <div className="d-flex align-items-center gap-2">
+                    <img
+                      src={s.profile}
+                      width="36"
+                      height="36"
+                      className="rounded-circle"
+                    />
+                    <strong>{s.name}</strong>
+                  </div>
+                </td>
+                <td>{s.plan}</td>
+                <td>{s.price}</td>
+                <td>{s.duration}</td>
+                <td>{s.nextBilling}</td>
+                <td>
+                  <span className="badge bg-success-subtle text-success">
+                    {s.status}
+                  </span>
+                </td>
+                <td>
+                  <button
+  className="btn btn-sm btn-outline-secondary"
+  data-bs-toggle="modal"
+  data-bs-target="#viewOwnerModal"
+  onClick={() => setSelectedOwner(s)}
+>
+  View
+</button>
+
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* ADD / EDIT PLAN MODAL */}
+      <div className="modal fade" id="planModal">
+        <div className="modal-dialog modal-lg modal-dialog-centered">
+          <div className="modal-content rounded-4">
+            <div className="modal-header">
+              <h5 className="fw-bold">Add / Edit Plan</h5>
+              <button className="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div className="modal-body">
+              <label className="fw-bold">Plan Name</label>
+              <input
+                className="form-control mb-3"
+                value={plan.name}
+                onChange={(e) => setPlan({ ...plan, name: e.target.value })}
+              />
+
+              <div className="row">
+                <div className="col-md-6">
+                  <label className="fw-bold">Price</label>
+                  <input
+                    className="form-control"
+                    value={plan.price}
+                    onChange={(e) =>
+                      setPlan({ ...plan, price: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="col-md-6">
+                  <label className="fw-bold">Duration</label>
+                  <select
+                    className="form-select"
+                    value={plan.duration}
+                    onChange={(e) =>
+                      setPlan({ ...plan, duration: e.target.value })
+                    }
+                  >
+                    <option>Monthly</option>
+                    <option>Quarterly</option>
+                    <option>Yearly</option>
+                  </select>
+                </div>
+              </div>
+
+              <label className="fw-bold mt-3">Features</label>
+              {plan.features.map((f, i) => (
+                <div key={i} className="d-flex gap-2 mb-2">
+                  <input
+                    className="form-control"
+                    value={f}
+                    onChange={(e) => updateFeature(i, e.target.value)}
+                  />
+                  <button
+                    className="btn btn-outline-danger"
+                    onClick={() => removeFeature(i)}
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+
+              <button
+                className="btn btn-outline-secondary mt-2"
+                onClick={addFeature}
+              >
+                + Add Feature
+              </button>
+            </div>
+
+            <div className="modal-footer">
+              <button className="btn btn-light" data-bs-dismiss="modal">
+                Cancel
+              </button>
+              <button className="btn sahayya-btn-primary">
+                Save Plan
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="modal fade" id="viewOwnerModal" tabIndex="-1">
+  <div className="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+    <div className="modal-content rounded-4">
+      <div className="modal-header">
+        <h5 className="fw-bold">House Owner Profile</h5>
+        <button className="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      {selectedOwner && (
+        <div className="modal-body">
+          <div className="row g-4">
+            <div className="col-md-3 text-center">
+              <img
+                src={selectedOwner.profile}
+                className="rounded-circle mb-2"
+                width="120"
+                height="120"
+              />
+              <h6 className="fw-bold">{selectedOwner.name}</h6>
+              <small className="text-muted">House Owner</small>
+            </div>
+
+            <div className="col-md-9">
+              <h6 className="fw-bold text-muted">Basic Information</h6>
+              <p><strong>Phone:</strong> {selectedOwner.phone}</p>
+              <p><strong>DOB:</strong> {selectedOwner.dob}</p>
+              <p><strong>Gender:</strong> {selectedOwner.gender}</p>
+
+              <h6 className="fw-bold text-muted mt-3">Address</h6>
+              <p>{selectedOwner.address.street}</p>
+              <p>
+                {selectedOwner.address.city},{" "}
+                {selectedOwner.address.state} -{" "}
+                {selectedOwner.address.pincode}
+              </p>
+
+              <h6 className="fw-bold text-muted mt-3">Residence</h6>
+              <p>
+                {selectedOwner.residence.type} •{" "}
+                {selectedOwner.residence.rooms} Rooms
+              </p>
+
+              <h6 className="fw-bold text-muted mt-3">Occupants</h6>
+              <p>
+                Adults: {selectedOwner.occupants.adults}, Children:{" "}
+                {selectedOwner.occupants.children}, Elderly:{" "}
+                {selectedOwner.occupants.elderly}
+              </p>
+
+              <h6 className="fw-bold text-muted mt-3">Pet</h6>
+              <p>
+                {selectedOwner.pet.type} ({selectedOwner.pet.count})
+              </p>
+
+              <h6 className="fw-bold text-muted mt-3">
+                Special Requirements
+              </h6>
+              <div className="bg-light p-3 rounded">
+                {selectedOwner.special}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="modal-footer">
+        <button className="btn btn-light" data-bs-dismiss="modal">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
     </div>
   );
 };

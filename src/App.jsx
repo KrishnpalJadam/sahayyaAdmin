@@ -16,6 +16,7 @@ import LeaveManagement from "./AdminPanel/LeaveManagement";
 import SalaryManagement from "./AdminPanel/SalaryManagement";
 import Membership from "./AdminPanel/Membership";
 import Notifications from "./AdminPanel/Notifications";
+import Support from "./AdminPanel/Support";
 
 
 // Vendor
@@ -51,6 +52,7 @@ const AppWrapper = () => {
           <Route path="membership" element={<Membership />} />
           <Route path="salary" element={<SalaryManagement />} />
           <Route path="notifications" element={<Notifications />} />
+          <Route path="support" element={<Support />} />
         
           
         </Route>
