@@ -71,13 +71,13 @@ const Sidebar = ({ isMobile, onLinkClick }) => {
 
           {/* {navItem("/admin/leaves", "fas fa-calendar-alt", "Leave Management")} */}
 
-          {/* {navItem("/admin/attendanceManagement", "fas fa-clock", "Attendance")} */}
+          {navItem("/admin/addrole", "fas fa-clock", "Add Role")}
 
           {navItem("/admin/salary", "fas fa-wallet", "Salary Transection")}
 
-          {/* {navItem("/admin/membership", "fas fa-crown", "Membership")} */}
+          {navItem("/admin/membership", "fas fa-crown", "Membership")}
 
-          {/* {navItem("/admin/support", "fas fa-bell", "Support")} */}
+          {navItem("/admin/reports", "fas fa-bell", "Reports")}
 
           {navItem("/", "fas fa-sign-out-alt", "Logout")}
         </ul>

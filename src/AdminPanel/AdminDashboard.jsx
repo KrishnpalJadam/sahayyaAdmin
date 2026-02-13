@@ -11,8 +11,8 @@ const AdminDashboard = () => {
   ];
 
   const summaryCards = [
-    { title: "Total House Owners", value: "124", icon: "bi-house-heart" },
-    { title: "Active Staff", value: "482", icon: "bi-people" },
+    { title: "Total House Owners", value: "12", icon: "bi-house-heart" },
+    { title: "Active Staff", value: "5", icon: "bi-people" },
     { title: "Open Jobs", value: "12", icon: "bi-briefcase" },
     // { title: "Pending KYC", value: "08", icon: "bi-shield-check" },
   ];

@@ -17,6 +17,8 @@ import SalaryManagement from "./AdminPanel/SalaryManagement";
 import Membership from "./AdminPanel/Membership";
 import Notifications from "./AdminPanel/Notifications";
 import Support from "./AdminPanel/Support";
+import Addrole from "./AdminPanel/Addrole";
+import Reports from "./AdminPanel/Reports";
 
 
 // Vendor
@@ -35,7 +37,7 @@ const AppWrapper = () => {
       <ScrollToTop />
 
       <Routes>
-       
+
 
         {/* Admin Login */}
         <Route path="/" element={<MainLogin />} />
@@ -44,7 +46,8 @@ const AppWrapper = () => {
         <Route path="/admin/*" element={<MainLayout />}>
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="house-owners" element={<HouseOwners />} />
-          <Route path="staffManagement" element={<StaffManagement />} />
+          <Route path="staffManagement/:ownerId" element={<StaffManagement />} />
+
           <Route path="attendanceManagement" element={<AttendanceManagement />} />
           <Route path="kyc" element={<AadhaarKyc />} />
           <Route path="jobs" element={<JobPostings />} />
@@ -53,8 +56,10 @@ const AppWrapper = () => {
           <Route path="salary" element={<SalaryManagement />} />
           <Route path="notifications" element={<Notifications />} />
           <Route path="support" element={<Support />} />
-        
-          
+          <Route path="addrole" element={<Addrole />} />
+          <Route path="reports" element={<Reports />} />
+
+
         </Route>
 
       </Routes>
