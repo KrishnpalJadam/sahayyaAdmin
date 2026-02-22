@@ -503,7 +503,7 @@ const StaffManagement = () => {
     try {
       const res = await axiosInstance.get(`/admin/houseowners/${ownerId}`);
       if (res.data.success) {
-        setOwnerName(res.data.data.name);
+        setOwnerName(res.data.data.first_name + " " + res.data.data.last_name);
       }
     } catch (error) {
       console.log(error);
@@ -634,9 +634,14 @@ const StaffManagement = () => {
 
             <thead className="table-light">
               <tr>
+                <th>Sr.</th>
                 <th>Photo</th>
                 <th>Name</th>
+                <th>Email</th>
+                <th>Aadhar Number</th>
                 <th>Phone</th>
+                <th>DOB</th>
+                <th>Gender</th>
                 <th>Status</th>
                 <th className="text-end">Actions</th>
               </tr>
@@ -649,12 +654,17 @@ const StaffManagement = () => {
                   <td colSpan="5" className="text-center">No Staff Found</td>
                 </tr>
               ) : (
-                filteredStaff.map((staff) => (
+                filteredStaff.map((staff, index) => (
                   <tr key={staff.id}>
-
+                    <td>{index + 1}</td>
                     <td>
-                      <img
+                      {/* <img
                         src={staff.image}
+                        className="staff-img border"
+                        alt=""
+                      /> */}
+                      <img
+                        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRRyI0ai9leWsm7sSXtYeRKRyzG8W3p0XrUJw&s"
                         className="staff-img border"
                         alt=""
                       />
@@ -667,8 +677,12 @@ const StaffManagement = () => {
                         ID: {staff.id}
                       </small>
                     </td>
+                    <td>{staff.email}</td>
+                    <td>{staff.aadhar_number}</td>
 
                     <td>{staff.phone_number}</td>
+                    <td>{staff.dob}</td>
+                    <td>{staff.gender}</td>
 
                     <td>
                       <span className={`badge rounded-pill 
@@ -681,14 +695,14 @@ const StaffManagement = () => {
 
                     <td className="text-end">
 
-                      <button
+                      {/* <button
                         className="btn btn-sm btn-outline-secondary me-2"
                         data-bs-toggle="modal"
                         data-bs-target="#viewStaffModal"
                         onClick={() => setSelectedStaff(staff)}
                       >
                         View
-                      </button>
+                      </button> */}
 
                       <div className="btn-group">
                         <button

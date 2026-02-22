@@ -1,112 +1,163 @@
-import React from 'react';
-import HouseOwners from './HouseOwners';
-import Support from './Support';
+import React, { useEffect, useState } from "react";
+import axiosInstance from "../utiles/axiosInstance";
+import { toast } from "react-toastify";
+import {
+  Chart as ChartJS,
+  ArcElement,
+  Tooltip,
+  Legend,
+} from "chart.js";
+import { Pie } from "react-chartjs-2";
+
+ChartJS.register(ArcElement, Tooltip, Legend);
 
 const AdminDashboard = () => {
-  // Static Dummy Data
-  const recentActivities = [
-    { id: 1, user: "John Doe", action: "Aadhaar Uploaded", time: "10 mins ago", status: "Pending" },
-    { id: 2, user: "Ramesh Kumar", action: "Job Posted", time: "45 mins ago", status: "Active" },
-    { id: 3, user: "Sita Sharma", action: "Salary Paid", time: "1 hour ago", status: "Success" },
-  ];
+  const [dashboardData, setDashboardData] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  const summaryCards = [
-    { title: "Total House Owners", value: "12", icon: "bi-house-heart" },
-    { title: "Active Staff", value: "5", icon: "bi-people" },
-    { title: "Open Jobs", value: "12", icon: "bi-briefcase" },
-    // { title: "Pending KYC", value: "08", icon: "bi-shield-check" },
-  ];
+  /* ================= FETCH DASHBOARD ================= */
+  const fetchDashboard = async () => {
+    setLoading(true);
+    try {
+      const res = await axiosInstance.get("/admin/dashboard");
+
+      if (res?.data?.status === "success") {
+        setDashboardData(res.data.data);
+      }
+    } catch (error) {
+      toast.error("Failed to load dashboard");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDashboard();
+  }, []);
+
+  /* ================= CHART DATA ================= */
+  const attendanceChart = {
+    labels: ["Present", "Absent", "Leave"],
+    datasets: [
+      {
+        data: dashboardData
+          ? [
+            dashboardData.present_attendance_count,
+            dashboardData.absent_attendance_count,
+            dashboardData.leave,
+          ]
+          : [0, 0, 0],
+        backgroundColor: ["#28a745", "#dc3545", "#ffc107"],
+      },
+    ],
+  };
 
   return (
-    <div className="container-fluid p-4" style={{  minHeight: '100vh' }}>
+    <div className="container-fluid p-4">
+
       <style>{`
-        .sahayya-btn-primary {
-          background-color: #D98C7A !calm;
-          border-color: #D98C7A;
-          color: white;
-        }
-        .sahayya-btn-primary:hover {
-          background-color: #c47b6a;
-          border-color: #c47b6a;
-          color: white;
-        }
         .sahayya-card {
           border: none;
           border-radius: 12px;
           box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         }
-        .sahayya-table thead th {
-          background-color: #f8f9fa;
-          color: #555;
-          font-weight: 600;
-        }
       `}</style>
 
-      {/* Header */}
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2 className="fw-bold">Admin Dashboard</h2>
-      </div>
+      {/* HEADER */}
+      <h2 className="fw-bold mb-4">Admin Dashboard</h2>
 
-      {/* Summary Cards */}
-      <div className="row mb-4">
-        {summaryCards.map((card, idx) => (
-          <div className="col-md-4" key={idx}>
-            <div className="card sahayya-card p-3">
-              <div className="d-flex align-items-center">
-                <div className="rounded-circle p-3 me-3" style={{ backgroundColor: '#FFF5F2', color: '#D98C7A' }}>
-                  <i className={`bi ${card.icon} fs-4`}></i>
+      {/* LOADER */}
+      {loading && (
+        <div className="text-center py-5">
+          <div className="spinner-border" />
+        </div>
+      )}
+
+      {!loading && dashboardData && (
+        <>
+          {/* ================= SUMMARY CARDS ================= */}
+          <div className="row mb-4">
+
+            <div className="col-md-4">
+              <div className="card sahayya-card p-3">
+                <p className="text-muted small">Total House Owners</p>
+                <h3 className="fw-bold">
+                  {dashboardData.house_owner_count}
+                </h3>
+              </div>
+            </div>
+
+            <div className="col-md-4">
+              <div className="card sahayya-card p-3">
+                <p className="text-muted small">Active Staff</p>
+                <h3 className="fw-bold">
+                  {dashboardData.staff_count}
+                </h3>
+              </div>
+            </div>
+
+            <div className="col-md-4">
+              <div className="card sahayya-card p-3">
+                <p className="text-muted small">Open Jobs</p>
+                <h3 className="fw-bold">
+                  {dashboardData.job_count}
+                </h3>
+              </div>
+            </div>
+
+          </div>
+
+          {/* ================= MAIN CONTENT ================= */}
+          <div className="row">
+
+            {/* Attendance Summary */}
+            <div className="col-md-6">
+              <div className="card sahayya-card p-4 h-100">
+                <h5 className="fw-bold mb-4">Today's Attendance</h5>
+
+                <div className="d-flex justify-content-between mb-2">
+                  <span>Present</span>
+                  <strong className="text-success">
+                    {dashboardData.present_attendance_count}
+                  </strong>
                 </div>
-                <div>
-                  <p className="text-muted mb-0 small">{card.title}</p>
-                  <h4 className="fw-bold mb-0">{card.value}</h4>
+
+                <div className="d-flex justify-content-between mb-2">
+                  <span>Absent</span>
+                  <strong className="text-danger">
+                    {dashboardData.absent_attendance_count}
+                  </strong>
+                </div>
+
+                <div className="d-flex justify-content-between mb-2">
+                  <span>On Leave</span>
+                  <strong className="text-warning">
+                    {dashboardData.leave}
+                  </strong>
+                </div>
+
+                <div className="mt-4 p-3 bg-light rounded">
+                  <small className="text-muted">
+                    Overall Attendance Rate
+                  </small>
+                  <h3 className="fw-bold text-primary">
+                    {dashboardData.overall_attendance_rate}%
+                  </h3>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
-      </div>
 
-      <div className="row">
-        {/* Recent Activities */}
-        <div className="col-md-8">
-          <div className=" sahayya-card p-4 ">
-            <h5 className="fw-bold mb-4">Recent Activities</h5>
-         {/* <Support/> */}
-            {/* Pagination UI */}
-            <nav className="mt-auto">
-              <ul className="pagination pagination-sm justify-content-end mb-0">
-                <li className="page-item disabled"><span className="page-link">Prev</span></li>
-                <li className="page-item active"><span className="page-link" style={{backgroundColor: '#D98C7A', borderColor: '#D98C7A'}}>1</span></li>
-                <li className="page-item"><span className="page-link text-dark">2</span></li>
-                <li className="page-item"><span className="page-link text-dark">Next</span></li>
-              </ul>
-            </nav>
-          </div>
-        </div>
+            {/* ================= PIE CHART ================= */}
+            <div className="col-md-6">
+              <div className="card sahayya-card p-4 h-100">
+                <h5 className="fw-bold mb-4">Attendance Chart</h5>
+                <Pie data={attendanceChart} />
+              </div>
+            </div>
 
-        {/* Today's Attendance Summary */}
-        <div className="col-md-4">
-          <div className="card sahayya-card p-4 h-100">
-            <h5 className="fw-bold mb-4">Today's Attendance</h5>
-            <div className="d-flex justify-content-between mb-3 border-bottom pb-2">
-              <span>Present</span>
-              <span className="fw-bold text-success">342</span>
-            </div>
-            <div className="d-flex justify-content-between mb-3 border-bottom pb-2">
-              <span>Absent</span>
-              <span className="fw-bold text-danger">45</span>
-            </div>
-            <div className="d-flex justify-content-between mb-3 border-bottom pb-2">
-              <span>On Leave</span>
-              <span className="fw-bold text-warning">12</span>
-            </div>
-            <div className="mt-4 p-3 rounded" style={{ backgroundColor: '#FFF5F2', border: '1px dashed #D98C7A' }}>
-              <small className="text-muted d-block">Overall Attendance Rate</small>
-              <h3 className="fw-bold mb-0" style={{ color: '#D98C7A' }}>88%</h3>
-            </div>
           </div>
-        </div>
-      </div>
+        </>
+      )}
     </div>
   );
 };

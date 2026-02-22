@@ -15,8 +15,10 @@ const Membership = () => {
     validity: "",
     type: "Monthly",
     role_id: "2",
+    subscription_limit: "",   // ✅ ADD THIS 
     extra: [{ feature: "" }],
   });
+
 
   const [selectedOwner, setSelectedOwner] = useState(null);
 
@@ -51,12 +53,15 @@ const Membership = () => {
         description: planToEdit.description || "",
         price: planToEdit.price || "",
         validity: planToEdit.validity || "",
-        type: planToEdit.type.charAt(0).toUpperCase() + planToEdit.type.slice(1), // monthly -> Monthly
+        type: planToEdit.type.charAt(0).toUpperCase() + planToEdit.type.slice(1),
         role_id: planToEdit.role_id || "2",
-        extra: planToEdit.extra && planToEdit.extra.length > 0
-          ? planToEdit.extra
-          : [{ feature: "" }],
+        subscription_limit: planToEdit.subscription_limit || "", // ✅ ADD
+        extra:
+          planToEdit.extra && planToEdit.extra.length > 0
+            ? planToEdit.extra
+            : [{ feature: "" }],
       });
+
     } else {
       setSelectedPlan(null);
       setFormData({
@@ -361,6 +366,19 @@ const Membership = () => {
                     <option>Yearly</option>
                   </select>
                 </div>
+                <div className="col-md-6">
+                  <label className="fw-bold">Subscription Limit</label>
+                  <input
+                    type="number"
+                    className="form-control"
+                    value={formData.subscription_limit}
+                    onChange={(e) =>
+                      setFormData({ ...formData, subscription_limit: e.target.value })
+                    }
+                    placeholder="e.g. 100"
+                  />
+                </div>
+
                 <div className="col-md-6">
                   <label className="fw-bold">Validity (Days)</label>
                   <input

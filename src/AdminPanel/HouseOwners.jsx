@@ -279,9 +279,6 @@
 
 
 
-
-
-
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import axiosInstance from '../utiles/axiosInstance';
@@ -289,11 +286,15 @@ import axiosInstance from '../utiles/axiosInstance';
 const HouseOwners = () => {
 
   const [owners, setOwners] = useState([]);
+  const [filteredOwners, setFilteredOwners] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [selectedOwner, setSelectedOwner] = useState(null);
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const ownersPerPage = 5;
 
   // ================================
-  // 1️⃣ GET ALL HOUSE OWNERS
+  // GET ALL HOUSE OWNERS
   // ================================
   const fetchOwners = async () => {
     try {
@@ -301,7 +302,9 @@ const HouseOwners = () => {
       const res = await axiosInstance.get("/admin/houseowners");
 
       if (res.data.success) {
-        setOwners(res.data.data.data); // pagination structure
+        const data = res.data.data.data;
+        setOwners(data);
+        setFilteredOwners(data);
       }
     } catch (error) {
       console.log(error);
@@ -315,29 +318,35 @@ const HouseOwners = () => {
   }, []);
 
   // ================================
-  // 2️⃣ GET OWNER BY ID
+  // SEARCH FUNCTION
   // ================================
-  const handleViewOwner = async (id) => {
-    try {
-      const res = await axiosInstance.get(`/admin/houseowners/${id}`);
-      if (res.data.success) {
-        setSelectedOwner(res.data.data);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  useEffect(() => {
+    const filtered = owners.filter((owner) =>
+      owner.first_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      owner.last_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      owner.phone_number?.includes(searchTerm)
+    );
+
+    setFilteredOwners(filtered);
+    setCurrentPage(1); // reset page when searching
+  }, [searchTerm, owners]);
 
   // ================================
-  // 3️⃣ DELETE OWNER
+  // PAGINATION LOGIC
   // ================================
+  const indexOfLastOwner = currentPage * ownersPerPage;
+  const indexOfFirstOwner = indexOfLastOwner - ownersPerPage;
+  const currentOwners = filteredOwners.slice(indexOfFirstOwner, indexOfLastOwner);
+
+  const totalPages = Math.ceil(filteredOwners.length / ownersPerPage);
+
   const handleDeleteOwner = async (id) => {
     if (!window.confirm("Are you sure you want to delete this owner?")) return;
 
     try {
       const res = await axiosInstance.delete(`/admin/houseowners/${id}`);
       if (res.data.success) {
-        fetchOwners(); // refresh list
+        fetchOwners();
       }
     } catch (error) {
       console.log(error);
@@ -349,71 +358,72 @@ const HouseOwners = () => {
 
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2 className="fw-bold">House Owners</h2>
+
+        {/* 🔍 SEARCH INPUT */}
+        <input
+          type="text"
+          className="form-control w-25"
+          placeholder="Search name or phone..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
       </div>
 
       <div className="card p-4">
-
         <div className="table-responsive">
           <table className="table align-middle">
             <thead>
               <tr>
+                <th>Sr.</th>
                 <th>Profile</th>
                 <th>Name</th>
-                {/* <th>Email</th> */}
                 <th>Phone</th>
+                <th>DOB</th>
                 <th>Status</th>
                 <th className="text-end">Actions</th>
               </tr>
             </thead>
+
             <tbody>
-
-
               {loading ? (
                 <tr>
-                  <td colSpan="6" className="text-center">Loading...</td>
+                  <td colSpan="7" className="text-center">Loading...</td>
                 </tr>
-              ) : owners.length === 0 ? (
+              ) : currentOwners.length === 0 ? (
                 <tr>
-                  <td colSpan="6" className="text-center">No Data Found</td>
+                  <td colSpan="7" className="text-center">No Data Found</td>
                 </tr>
               ) : (
-                owners.map((owner) => (
+                currentOwners.map((owner, index) => (
                   <tr key={owner.id}>
+                    <td>{indexOfFirstOwner + index + 1}</td>
                     <td>
                       <img
-                        src={owner.image}
+                        src="https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg"
                         width={50}
                         className="rounded-2"
                         alt=""
                       />
                     </td>
-                    <td className="fw-bold">{owner.first_name}</td>
-                    {/* <td>{owner.email}</td> */}
+                    <td className="fw-bold">
+                      {owner.first_name} {owner.last_name}
+                    </td>
                     <td>{owner.phone_number}</td>
+                    <td>{owner.dob}</td>
                     <td>
                       <span className={`badge ${owner.status === "active"
-                        ? "bg-success"
-                        : "bg-secondary"}`}>
+                          ? "bg-success"
+                          : "bg-secondary"
+                        }`}>
                         {owner.status}
                       </span>
                     </td>
                     <td className="text-end">
-
                       <Link to={`/admin/staffManagement/${owner.id}`}>
-
                         <button className="btn btn-sm btn-primary me-2">
                           View Staff
                         </button>
                       </Link>
-
-                      <button
-                        className="btn btn-sm btn-outline-secondary me-2"
-                        data-bs-toggle="modal"
-                        data-bs-target="#viewOwnerModal"
-                        onClick={() => handleViewOwner(owner.id)}
-                      >
-                        View
-                      </button>
 
                       <button
                         className="btn btn-sm btn-outline-danger"
@@ -421,50 +431,61 @@ const HouseOwners = () => {
                       >
                         Delete
                       </button>
-
                     </td>
                   </tr>
                 ))
               )}
-
             </tbody>
           </table>
         </div>
-      </div>
 
-      {/* VIEW MODAL */}
-      <div className="modal fade" id="viewOwnerModal" tabIndex="-1">
-        <div className="modal-dialog modal-lg modal-dialog-centered">
-          <div className="modal-content">
+        {/* ================================
+            PAGINATION UI
+        ================================= */}
+        {totalPages > 1 && (
+          <div className="d-flex justify-content-end mt-3">
+            <nav>
+              <ul className="pagination mb-0">
 
-            <div className="modal-header">
-              <h5 className="modal-title">House Owner Details</h5>
-              <button type="button" className="btn-close" data-bs-dismiss="modal"></button>
-            </div>
+                <li className={`page-item ${currentPage === 1 && "disabled"}`}>
+                  <button
+                    className="page-link"
+                    onClick={() => setCurrentPage(currentPage - 1)}
+                  >
+                    Previous
+                  </button>
+                </li>
 
-            <div className="modal-body">
-              {selectedOwner ? (
-                <div>
-                  <p><strong>Name:</strong> {selectedOwner.name}</p>
-                  <p><strong>Email:</strong> {selectedOwner.email}</p>
-                  <p><strong>Phone:</strong> {selectedOwner.phone_number}</p>
-                  <p><strong>Status:</strong> {selectedOwner.status}</p>
-                </div>
-              ) : (
-                <p>Loading...</p>
-              )}
-            </div>
+                {[...Array(totalPages)].map((_, i) => (
+                  <li
+                    key={i}
+                    className={`page-item ${currentPage === i + 1 && "active"}`}
+                  >
+                    <button
+                      className="page-link"
+                      onClick={() => setCurrentPage(i + 1)}
+                    >
+                      {i + 1}
+                    </button>
+                  </li>
+                ))}
 
+                <li className={`page-item ${currentPage === totalPages && "disabled"}`}>
+                  <button
+                    className="page-link"
+                    onClick={() => setCurrentPage(currentPage + 1)}
+                  >
+                    Next
+                  </button>
+                </li>
+
+              </ul>
+            </nav>
           </div>
-        </div>
+        )}
       </div>
-
     </div>
   );
 };
 
 export default HouseOwners;
-
-
-
-

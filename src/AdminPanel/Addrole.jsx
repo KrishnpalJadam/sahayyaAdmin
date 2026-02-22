@@ -1,34 +1,114 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import axiosInstance from "../utiles/axiosInstance";
+import { toast } from "react-toastify";
 
 const Addrole = () => {
-  const roleList = [
-    { id: 1, name: "Driver" },
-    { id: 2, name: "Cook" },
-    { id: 3, name: "Security" },
-    { id: 4, name: "Maid" },
-  ];
+  const [roleList, setRoleList] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  const [formData, setFormData] = useState({
+    name: "",
+    image: null,
+  });
+
+  /* ================= FETCH CATEGORY ================= */
+  const fetchRoles = async () => {
+    setLoading(true);
+    try {
+      const res = await axiosInstance.get("/category");
+
+      if (res?.data?.success) {
+        setRoleList(res.data.data || []);
+      }
+    } catch (error) {
+      toast.error("Failed to fetch roles");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchRoles();
+  }, []);
+
+  /* ================= HANDLE INPUT ================= */
+  const handleChange = (e) => {
+    setFormData({ ...formData, name: e.target.value });
+  };
+
+  const handleImage = (e) => {
+    setFormData({ ...formData, image: e.target.files[0] });
+  };
+
+  /* ================= SAVE ROLE ================= */
+  const handleSaveRole = async () => {
+    if (!formData.name) {
+      toast.warning("Role name required");
+      return;
+    }
+
+    const payload = new FormData();
+    payload.append("name", formData.name);
+
+    if (formData.image) {
+      payload.append("image", formData.image);
+    }
+
+    setSubmitting(true);
+
+    try {
+      await axiosInstance.post("/category/save", payload, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      toast.success("Role added successfully");
+
+      setFormData({ name: "", image: null });
+
+      // Close Modal
+      const modal = window.bootstrap.Modal.getInstance(
+        document.getElementById("addRoleModal")
+      );
+      modal.hide();
+
+      fetchRoles();
+    } catch (error) {
+      toast.error("Failed to save role");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+  /* ================= DELETE ROLE ================= */
+  const handleDeleteRole = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this role?")) return;
+
+    try {
+      await axiosInstance.delete(`/category/${id}`);
+
+      toast.success("Role deleted successfully");
+
+      fetchRoles(); // refresh list
+    } catch (error) {
+      toast.error("Failed to delete role");
+    }
+  };
 
   return (
-    <div className="container-fluid p-4" style={{ minHeight: "100vh" }}>
+    <div className="container-fluid p-4">
+
       <style>{`
         .sahayya-btn-primary {
           background-color: #D98C7A !important;
           border-color: #D98C7A !important;
-          color: #fff !important;
-        }
-        .sahayya-btn-primary:hover {
-          background-color: #c47b6a !important;
-        }
-        .sahayya-card {
-          border: none;
-          border-radius: 12px;
-          box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+          color: white !important;
         }
       `}</style>
 
-      {/* Header */}
-      <div className="d-flex justify-content-between align-items-center mb-4">
+      {/* HEADER */}
+      <div className="d-flex justify-content-between mb-4">
         <h2 className="fw-bold">Role Management</h2>
+
         <button
           className="btn sahayya-btn-primary"
           data-bs-toggle="modal"
@@ -38,70 +118,80 @@ const Addrole = () => {
         </button>
       </div>
 
-      {/* Card */}
-      <div className="card sahayya-card p-4">
-        <div className="table-responsive">
+      {/* TABLE */}
+      <div className="card p-4">
+        {loading ? (
+          <div className="text-center py-5">
+            <div className="spinner-border"></div>
+          </div>
+        ) : (
           <table className="table align-middle">
             <thead className="table-light">
               <tr>
                 <th>Sr.</th>
+                {/* <th>Image</th> */}
                 <th>Role Name</th>
-                <th className="text-end">Action</th>
+                <th>Action</th>
               </tr>
             </thead>
+
             <tbody>
               {roleList.map((role, index) => (
                 <tr key={role.id}>
-                    <td>{index+1}</td>
+                  <td>{index + 1}</td>
+
+                  {/* <td>
+                    <img
+                      src={`${import.meta.env.VITE_BASE_URL}${role.image}`}
+                      alt={role.name}
+                      width="40"
+                      height="40"
+                      style={{ objectFit: "cover", borderRadius: "8px" }}
+                    />
+                  </td> */}
+
                   <td>
                     <strong>{role.name}</strong>
                   </td>
-                  <td className="text-end">
-                    <button className="btn btn-sm btn-outline-danger">
+                  <td>
+                    <button
+                      className="btn btn-danger btn-sm"
+                      onClick={() => handleDeleteRole(role.id)}
+                    >
                       Delete
                     </button>
                   </td>
+
                 </tr>
               ))}
             </tbody>
           </table>
-        </div>
-
-        {/* Pagination (UI only) */}
-        <div className="d-flex justify-content-between mt-3">
-          <small className="text-muted">Showing 1 to 4 of 4 entries</small>
-          <ul className="pagination pagination-sm mb-0">
-            <li className="page-item active">
-              <span
-                className="page-link"
-                style={{
-                  backgroundColor: "#D98C7A",
-                  borderColor: "#D98C7A",
-                }}
-              >
-                1
-              </span>
-            </li>
-          </ul>
-        </div>
+        )}
       </div>
 
-      {/* ADD ROLE MODAL (ONLY ADD) */}
-      <div className="modal fade" id="addRoleModal" tabIndex="-1">
+      {/* ADD MODAL */}
+      <div className="modal fade" id="addRoleModal">
         <div className="modal-dialog modal-dialog-centered">
-          <div className="modal-content border-0 rounded-4">
+          <div className="modal-content rounded-4">
 
             <div className="modal-header">
-              <h5 className="modal-title fw-bold">Add New Role</h5>
+              <h5 className="fw-bold">Add New Role</h5>
               <button className="btn-close" data-bs-dismiss="modal"></button>
             </div>
 
             <div className="modal-body">
-              <label className="form-label fw-bold">Role Name</label>
+              <label className="fw-bold">Role Name</label>
               <input
-                type="text"
+                className="form-control mb-3"
+                value={formData.name}
+                onChange={handleChange}
+              />
+
+              <label className="fw-bold">Role Image</label>
+              <input
+                type="file"
                 className="form-control"
-                placeholder="Enter role name"
+                onChange={handleImage}
               />
             </div>
 
@@ -109,8 +199,13 @@ const Addrole = () => {
               <button className="btn btn-light" data-bs-dismiss="modal">
                 Cancel
               </button>
-              <button className="btn sahayya-btn-primary">
-                Save Role
+
+              <button
+                className="btn sahayya-btn-primary"
+                onClick={handleSaveRole}
+                disabled={submitting}
+              >
+                {submitting ? "Saving..." : "Save Role"}
               </button>
             </div>
 
