@@ -18,7 +18,9 @@ import Membership from "./AdminPanel/Membership";
 import Notifications from "./AdminPanel/Notifications";
 import Support from "./AdminPanel/Support";
 import Addrole from "./AdminPanel/Addrole";
+import AllStaff from "./AdminPanel/AllStaff";
 import Reports from "./AdminPanel/Reports";
+import Settings from "./AdminPanel/Settings";
 
 
 // Vendor
@@ -47,6 +49,7 @@ const AppWrapper = () => {
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="house-owners" element={<HouseOwners />} />
           <Route path="staffManagement/:ownerId" element={<StaffManagement />} />
+          <Route path="allStaff" element={<AllStaff />} />
 
           <Route path="attendanceManagement" element={<AttendanceManagement />} />
           <Route path="kyc" element={<AadhaarKyc />} />
@@ -58,6 +61,7 @@ const AppWrapper = () => {
           <Route path="support" element={<Support />} />
           <Route path="addrole" element={<Addrole />} />
           <Route path="reports" element={<Reports />} />
+          <Route path="settings" element={<Settings />} />
 
 
         </Route>

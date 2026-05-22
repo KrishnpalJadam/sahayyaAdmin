@@ -9,10 +9,13 @@ const Addrole = () => {
 
   const [formData, setFormData] = useState({
     name: "",
-    image: null,
   });
 
-  /* ================= FETCH CATEGORY ================= */
+  // ✅ Default Image URL
+  const DEFAULT_IMAGE =
+    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTPQHstFutlfl8tgZAtY8nDWucSWEvFM5AETQ&s";
+
+  /* ================= FETCH ROLES ================= */
   const fetchRoles = async () => {
     setLoading(true);
     try {
@@ -37,10 +40,6 @@ const Addrole = () => {
     setFormData({ ...formData, name: e.target.value });
   };
 
-  const handleImage = (e) => {
-    setFormData({ ...formData, image: e.target.files[0] });
-  };
-
   /* ================= SAVE ROLE ================= */
   const handleSaveRole = async () => {
     if (!formData.name) {
@@ -48,25 +47,27 @@ const Addrole = () => {
       return;
     }
 
-    const payload = new FormData();
-    payload.append("name", formData.name);
-
-    if (formData.image) {
-      payload.append("image", formData.image);
-    }
-
     setSubmitting(true);
 
     try {
+      const payload = new FormData();
+      payload.append("name", formData.name);
+
+      // ✅ Convert default image URL → File
+      const response = await fetch(DEFAULT_IMAGE);
+      const blob = await response.blob();
+
+      payload.append("image", blob, "default.jpg");
+
       await axiosInstance.post("/category/save", payload, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
       toast.success("Role added successfully");
 
-      setFormData({ name: "", image: null });
+      setFormData({ name: "" });
 
-      // Close Modal
+      // Close modal
       const modal = window.bootstrap.Modal.getInstance(
         document.getElementById("addRoleModal")
       );
@@ -74,11 +75,13 @@ const Addrole = () => {
 
       fetchRoles();
     } catch (error) {
+      console.error(error);
       toast.error("Failed to save role");
     } finally {
       setSubmitting(false);
     }
   };
+
   /* ================= DELETE ROLE ================= */
   const handleDeleteRole = async (id) => {
     if (!window.confirm("Are you sure you want to delete this role?")) return;
@@ -88,15 +91,14 @@ const Addrole = () => {
 
       toast.success("Role deleted successfully");
 
-      fetchRoles(); // refresh list
+      fetchRoles();
     } catch (error) {
       toast.error("Failed to delete role");
     }
   };
 
   return (
-    <div className="container-fluid p-4">
-
+    <div className="container-fluid p-4" style={{ height: "100vh" }}>
       <style>{`
         .sahayya-btn-primary {
           background-color: #D98C7A !important;
@@ -129,7 +131,6 @@ const Addrole = () => {
             <thead className="table-light">
               <tr>
                 <th>Sr.</th>
-                {/* <th>Image</th> */}
                 <th>Role Name</th>
                 <th>Action</th>
               </tr>
@@ -140,19 +141,10 @@ const Addrole = () => {
                 <tr key={role.id}>
                   <td>{index + 1}</td>
 
-                  {/* <td>
-                    <img
-                      src={`${import.meta.env.VITE_BASE_URL}${role.image}`}
-                      alt={role.name}
-                      width="40"
-                      height="40"
-                      style={{ objectFit: "cover", borderRadius: "8px" }}
-                    />
-                  </td> */}
-
                   <td>
                     <strong>{role.name}</strong>
                   </td>
+
                   <td>
                     <button
                       className="btn btn-danger btn-sm"
@@ -161,7 +153,6 @@ const Addrole = () => {
                       Delete
                     </button>
                   </td>
-
                 </tr>
               ))}
             </tbody>
@@ -173,7 +164,6 @@ const Addrole = () => {
       <div className="modal fade" id="addRoleModal">
         <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content rounded-4">
-
             <div className="modal-header">
               <h5 className="fw-bold">Add New Role</h5>
               <button className="btn-close" data-bs-dismiss="modal"></button>
@@ -185,13 +175,7 @@ const Addrole = () => {
                 className="form-control mb-3"
                 value={formData.name}
                 onChange={handleChange}
-              />
-
-              <label className="fw-bold">Role Image</label>
-              <input
-                type="file"
-                className="form-control"
-                onChange={handleImage}
+                placeholder="Enter role name"
               />
             </div>
 
@@ -208,11 +192,9 @@ const Addrole = () => {
                 {submitting ? "Saving..." : "Save Role"}
               </button>
             </div>
-
           </div>
         </div>
       </div>
-
     </div>
   );
 };

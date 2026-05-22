@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import axiosInstance from "../utiles/axiosInstance";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -13,19 +14,50 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
 const Reports = () => {
   const [filter, setFilter] = useState("monthly");
+  const [reportData, setReportData] = useState(null);
+  const [loading, setLoading] = useState(false);
 
+  // ================= FETCH REPORT =================
+  const fetchReport = async (type) => {
+    try {
+      setLoading(true);
+
+      const res = await axiosInstance.post("/admin/report", {
+        type: type,
+      });
+
+      if (res.data.status === "success") {
+        setReportData(res.data.data);
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchReport(filter);
+  }, [filter]);
+
+  // ================= CHART DATA =================
   const chartData = {
     labels:
-      filter === "monthly"
+      reportData?.chartdata?.revenue_overview?.length > 0
+        ? reportData.chartdata.revenue_overview.map((item) => item.label)
+        : filter === "monthly"
         ? ["Week 1", "Week 2", "Week 3", "Week 4"]
-        : ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+        : ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+
     datasets: [
       {
         label: "Revenue (₹)",
         data:
-          filter === "monthly"
-            ? [18000, 22000, 25000, 30000]
-            : [42000, 38000, 50000, 47000, 56000, 62000, 59000, 64000, 61000, 70000, 72000, 78000],
+          reportData?.chartdata?.revenue_overview?.length > 0
+            ? reportData.chartdata.revenue_overview.map(
+                (item) => item.amount
+              )
+            : [0, 0, 0, 0],
         backgroundColor: "#D98C7A",
         borderRadius: 6,
       },
@@ -42,7 +74,7 @@ const Reports = () => {
         }
       `}</style>
 
-      {/* Header + Filter */}
+      {/* Header */}
       <div className="d-flex justify-content-between align-items-center mb-4">
         <div>
           <h2 className="fw-bold mb-0">Reports</h2>
@@ -61,75 +93,96 @@ const Reports = () => {
         </select>
       </div>
 
-      {/* Summary Cards */}
-      <div className="row g-4 mb-4">
-        <div className="col-md-3">
-          <div className="card sahayya-card p-3">
-            <small className="text-muted">Total House Owners</small>
-            <h4 className="fw-bold mt-2">12</h4>
-          </div>
-        </div>
+      {loading ? (
+        <div className="text-center py-5">Loading Report...</div>
+      ) : reportData ? (
+        <>
+          {/* SUMMARY CARDS */}
+          <div className="row g-4 mb-4">
+            <div className="col-md-3">
+              <div className="card sahayya-card p-3">
+                <small className="text-muted">Total House Owners</small>
+                <h4 className="fw-bold mt-2">
+                  {reportData.house_owner_count}
+                </h4>
+              </div>
+            </div>
 
-        <div className="col-md-3">
-          <div className="card sahayya-card p-3">
-            <small className="text-muted">Total Staff</small>
-            <h4 className="fw-bold mt-2">58</h4>
-          </div>
-        </div>
+            <div className="col-md-3">
+              <div className="card sahayya-card p-3">
+                <small className="text-muted">Total Staff</small>
+                <h4 className="fw-bold mt-2">
+                  {reportData.staff_count}
+                </h4>
+              </div>
+            </div>
 
-        <div className="col-md-3">
-          <div className="card sahayya-card p-3">
-            <small className="text-muted">Active Jobs</small>
-            <h4 className="fw-bold mt-2">19</h4>
-          </div>
-        </div>
+            <div className="col-md-3">
+              <div className="card sahayya-card p-3">
+                <small className="text-muted">Total Jobs</small>
+                <h4 className="fw-bold mt-2">
+                  {reportData.job_count}
+                </h4>
+              </div>
+            </div>
 
-        <div className="col-md-3">
-          <div className="card sahayya-card p-3">
-            <small className="text-muted">
-              {filter === "monthly" ? "This Month Revenue" : "This Year Revenue"}
-            </small>
-            <h4 className="fw-bold mt-2">
-              {filter === "monthly" ? "₹95,000" : "₹8,20,000"}
-            </h4>
+            <div className="col-md-3">
+              <div className="card sahayya-card p-3">
+                <small className="text-muted">
+                  {filter === "monthly"
+                    ? "Membership Revenue"
+                    : "Membership Revenue"}
+                </small>
+                <h4 className="fw-bold mt-2">
+                  ₹{reportData.member_subscription_revenue}
+                </h4>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
 
-      {/* Extra Useful Cards */}
-      <div className="row g-4 mb-4">
-        <div className="col-md-4">
-          <div className="card sahayya-card p-3">
-            <small className="text-muted">Salary Paid</small>
-            <h5 className="fw-bold mt-2">₹4,50,000</h5>
-            <small className="text-muted">Staff payments</small>
+          {/* EXTRA CARDS */}
+          <div className="row g-4 mb-4">
+            <div className="col-md-4">
+              <div className="card sahayya-card p-3">
+                <small className="text-muted">Salary Paid</small>
+                <h5 className="fw-bold mt-2">
+                  ₹{reportData.member_salary_paid}
+                </h5>
+              </div>
+            </div>
+
+            <div className="col-md-4">
+              <div className="card sahayya-card p-3">
+                <small className="text-muted">Present Attendance</small>
+                <h5 className="fw-bold mt-2">
+                  {reportData.present_attendance_count}
+                </h5>
+              </div>
+            </div>
+
+            <div className="col-md-4">
+              <div className="card sahayya-card p-3">
+                <small className="text-muted">Overall Attendance Rate</small>
+                <h5 className="fw-bold mt-2">
+                  {reportData.overall_attendance_rate}%
+                </h5>
+              </div>
+            </div>
           </div>
-        </div>
 
-        <div className="col-md-4">
-          <div className="card sahayya-card p-3">
-            <small className="text-muted">Membership Revenue</small>
-            <h5 className="fw-bold mt-2">₹1,20,000</h5>
-            <small className="text-muted">House owners</small>
+          {/* CHART */}
+          <div className="card sahayya-card p-4">
+            <h6 className="fw-bold mb-3">
+              {filter === "monthly"
+                ? "Monthly Revenue Overview"
+                : "Yearly Revenue Overview"}
+            </h6>
+            <Bar data={chartData} />
           </div>
-        </div>
-
-        <div className="col-md-4">
-          <div className="card sahayya-card p-3">
-            <small className="text-muted">Average Attendance</small>
-            <h5 className="fw-bold mt-2">88%</h5>
-            <small className="text-muted">Staff attendance</small>
-          </div>
-        </div>
-      </div>
-
-      {/* Revenue Graph */}
-      <div className="card sahayya-card p-4">
-        <h6 className="fw-bold mb-3">
-          {filter === "monthly" ? "Monthly Revenue Overview" : "Yearly Revenue Overview"}
-        </h6>
-        <Bar data={chartData} />
-      </div>
+        </>
+      ) : (
+        <div className="text-center py-5">No Data Available</div>
+      )}
     </div>
   );
 };

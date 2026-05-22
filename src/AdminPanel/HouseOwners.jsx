@@ -356,13 +356,14 @@ const HouseOwners = () => {
   return (
     <div className="container-fluid p-4" style={{ minHeight: '100vh' }}>
 
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2 className="fw-bold">House Owners</h2>
+      <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+        <h2 className="fw-bold mb-0">House Owners</h2>
 
         {/* 🔍 SEARCH INPUT */}
         <input
           type="text"
-          className="form-control w-25"
+          className="form-control"
+          style={{ maxWidth: "280px" }}
           placeholder="Search name or phone..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
