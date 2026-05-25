@@ -55,10 +55,11 @@ const Membership = () => {
         type: plan.type
           ? plan.type.charAt(0).toUpperCase() + plan.type.slice(1)
           : "",
-        role_id: plan.role_id || "2",
+        role_id: plan.role_id ? String(plan.role_id) : "2",
         job_limit: plan.job_limit ? Number(plan.job_limit) : "",
         subscription_limit: plan.subscription_limit || "",
         extra: plan.extra?.length ? plan.extra : [{ feature: "" }],
+        extra_job_price: plan.extra_job_price ? Number(plan.extra_job_price) : "",
       });
     } else {
       setSelectedPlan(null);
@@ -72,6 +73,7 @@ const Membership = () => {
         job_limit: "",
         subscription_limit: "",
         extra: [{ feature: "" }],
+        extra_job_price: "",
       });
     }
   };
@@ -111,6 +113,7 @@ const Membership = () => {
         price: Number(formData.price),
         job_limit: Number(formData.job_limit),
         subscription_limit: Number(formData.subscription_limit || 0),
+        extra_job_price: String(formData.role_id) === "3" ? Number(formData.extra_job_price || 0) : 0,
         type: formData.type.toLowerCase(),
         validity:
           formData.validity ||
@@ -199,9 +202,15 @@ const Membership = () => {
                   <span className="plan-stat-label">Job Limit</span>
                   <span className="plan-stat-value">{Number(p.job_limit)} Jobs</span>
                 </div>
+                {String(p.role_id) === "3" && (
+                  <div className="plan-stat-item">
+                    <span className="plan-stat-label">Extra Job Price</span>
+                    <span className="plan-stat-value">₹{Number(p.extra_job_price || 0)}</span>
+                  </div>
+                )}
                 <div className="plan-stat-item">
                   <span className="plan-stat-label">Role</span>
-                  <span className="plan-stat-value">{p.role_id === "3" ? "House Owner" : "Staff"}</span>
+                  <span className="plan-stat-value">{String(p.role_id) === "3" ? "House Owner" : "Staff"}</span>
                 </div>
               </div>
 
@@ -322,6 +331,23 @@ const Membership = () => {
                     />
                   </div>
                 </div>
+
+                {String(formData.role_id) === "3" && (
+                  <div className="row">
+                    <div className="col-md-12">
+                      <label className="premium-form-label">Extra Job Price (₹)</label>
+                      <input
+                        className="form-control premium-input"
+                        placeholder="Price to post an extra job"
+                        type="number"
+                        value={formData.extra_job_price}
+                        onChange={(e) =>
+                          setFormData({ ...formData, extra_job_price: e.target.value })
+                        }
+                      />
+                    </div>
+                  </div>
+                )}
 
                 <div className="mb-3">
                   <label className="premium-form-label d-flex justify-content-between align-items-center">
