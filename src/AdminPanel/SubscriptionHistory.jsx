@@ -60,7 +60,8 @@ const SubscriptionHistory = () => {
   const ownerMap = useMemo(() => {
     const map = {};
     owners.forEach((o) => {
-      map[o.id] = `${o.first_name || ""} ${o.last_name || ""}`.trim();
+      const fullName = `${o.first_name || ""} ${o.last_name || ""}`.trim();
+      map[o.id] = fullName || o.name || o.email || "";
     });
     return map;
   }, [owners]);
@@ -69,16 +70,22 @@ const SubscriptionHistory = () => {
   const staffMap = useMemo(() => {
     const map = {};
     staffs.forEach((s) => {
-      map[s.id] =
-        s.first_name && s.last_name
-          ? `${s.first_name} ${s.last_name}`
-          : s.name;
+      const fullName = `${s.first_name || ""} ${s.last_name || ""}`.trim();
+      map[s.id] = fullName || s.name || s.email || "";
     });
     return map;
   }, [staffs]);
 
   // ================= GET USER NAME =================
-  const getUserName = (userId, role) => {
+  const getUserName = (sub) => {
+    const userId = sub?.user_id;
+    const role = String(sub?.role ?? "");
+
+    const fullName = `${sub?.user?.first_name || ""} ${sub?.user?.last_name || ""}`.trim();
+    if (fullName) return fullName;
+    if (sub?.user?.name) return sub.user.name;
+    if (sub?.user?.email) return sub.user.email;
+
     if (role === "3") {
       return ownerMap[userId] || "Unknown Owner";
     }
@@ -86,6 +93,9 @@ const SubscriptionHistory = () => {
     if (role === "2") {
       return staffMap[userId] || "Unknown Staff";
     }
+
+    if (ownerMap[userId]) return ownerMap[userId];
+    if (staffMap[userId]) return staffMap[userId];
 
     return "Unknown User";
   };
@@ -126,7 +136,7 @@ const SubscriptionHistory = () => {
               subscriptions.map((sub) => (
                 <tr key={sub.id}>
                   <td className="user-name">
-                    {getUserName(sub.user_id, sub.role)}
+                    {getUserName(sub)}
                   </td>
 
                   <td>
@@ -135,7 +145,7 @@ const SubscriptionHistory = () => {
                     </span>
                   </td>
 
-                  <td className="fw-bold text-success">₹{sub.amount}</td>
+                  <td className="fw-bold text-success">&#8377;{sub.amount}</td>
 
                   <td className="text-capitalize">{sub.subscription?.type}</td>
 
@@ -168,3 +178,4 @@ const SubscriptionHistory = () => {
 };
 
 export default SubscriptionHistory;
+
