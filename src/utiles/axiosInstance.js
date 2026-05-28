@@ -14,4 +14,20 @@ axiosInstance.interceptors.request.use((config) => {
     return config;
 });
 
+axiosInstance.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error?.response?.status === 401) {
+            localStorage.removeItem("token");
+            localStorage.removeItem("login_details");
+            localStorage.removeItem("user_id");
+            localStorage.removeItem("role");
+            if (window.location.pathname !== "/") {
+                window.location.href = "/";
+            }
+        }
+        return Promise.reject(error);
+    }
+);
+
 export default axiosInstance;
