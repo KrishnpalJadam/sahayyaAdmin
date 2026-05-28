@@ -101,7 +101,7 @@ const Membership = () => {
       return;
     }
 
-    if (!formData.job_limit) {
+    if (String(formData.role_id) === "3" && !formData.job_limit) {
       toast.warning("Job limit is required");
       return;
     }
@@ -111,7 +111,7 @@ const Membership = () => {
       const payload = {
         ...formData,
         price: Number(formData.price),
-        job_limit: Number(formData.job_limit),
+        job_limit: String(formData.role_id) === "3" ? Number(formData.job_limit) : 0,
         subscription_limit: Number(formData.subscription_limit || 0),
         extra_job_price: String(formData.role_id) === "3" ? Number(formData.extra_job_price || 0) : 0,
         type: formData.type.toLowerCase(),
@@ -198,15 +198,17 @@ const Membership = () => {
               </div>
 
               <div className="plan-stats">
-                <div className="plan-stat-item">
-                  <span className="plan-stat-label">Job Limit</span>
-                  <span className="plan-stat-value">{Number(p.job_limit)} Jobs</span>
-                </div>
                 {String(p.role_id) === "3" && (
-                  <div className="plan-stat-item">
-                    <span className="plan-stat-label">Extra Job Price</span>
-                    <span className="plan-stat-value">₹{Number(p.extra_job_price || 0)}</span>
-                  </div>
+                  <>
+                    <div className="plan-stat-item">
+                      <span className="plan-stat-label">Job Limit</span>
+                      <span className="plan-stat-value">{Number(p.job_limit)} Jobs</span>
+                    </div>
+                    <div className="plan-stat-item">
+                      <span className="plan-stat-label">Extra Job Price</span>
+                      <span className="plan-stat-value">&#8377;{Number(p.extra_job_price || 0)}</span>
+                    </div>
+                  </>
                 )}
                 <div className="plan-stat-item">
                   <span className="plan-stat-label">Role</span>
@@ -316,39 +318,39 @@ const Membership = () => {
                     </select>
                   </div>
                 </div>
-
-                <div className="row">
-                  <div className="col-md-12">
-                    <label className="premium-form-label">Job Posting Limit</label>
-                    <input
-                      className="form-control premium-input"
-                      placeholder="Number of jobs allowed"
-                      type="number"
-                      value={formData.job_limit}
-                      onChange={(e) =>
-                        setFormData({ ...formData, job_limit: e.target.value })
-                      }
-                    />
-                  </div>
-                </div>
-
                 {String(formData.role_id) === "3" && (
-                  <div className="row">
-                    <div className="col-md-12">
-                      <label className="premium-form-label">Extra Job Price (₹)</label>
-                      <input
-                        className="form-control premium-input"
-                        placeholder="Price to post an extra job"
-                        type="number"
-                        value={formData.extra_job_price}
-                        onChange={(e) =>
-                          setFormData({ ...formData, extra_job_price: e.target.value })
-                        }
-                      />
+                  <>
+                    <div className="row">
+                      <div className="col-md-12">
+                        <label className="premium-form-label">Job Posting Limit</label>
+                        <input
+                          className="form-control premium-input"
+                          placeholder="Number of jobs allowed"
+                          type="number"
+                          value={formData.job_limit}
+                          onChange={(e) =>
+                            setFormData({ ...formData, job_limit: e.target.value })
+                          }
+                        />
+                      </div>
                     </div>
-                  </div>
-                )}
 
+                    <div className="row">
+                      <div className="col-md-12">
+                        <label className="premium-form-label">Extra Job Price (₹)</label>
+                        <input
+                          className="form-control premium-input"
+                          placeholder="Price to post an extra job"
+                          type="number"
+                          value={formData.extra_job_price}
+                          onChange={(e) =>
+                            setFormData({ ...formData, extra_job_price: e.target.value })
+                          }
+                        />
+                      </div>
+                    </div>
+                  </>
+                )}
                 <div className="mb-3">
                   <label className="premium-form-label d-flex justify-content-between align-items-center">
                     Plan Features
@@ -390,3 +392,4 @@ const Membership = () => {
 };
 
 export default Membership;
+
