@@ -96,7 +96,7 @@ const Membership = () => {
 
   /* ================= SAVE ================= */
   const handleSavePlan = async () => {
-    if (!formData.subscription_name || !formData.price || !formData.type) {
+    if (!formData.subscription_name || formData.price === "" || formData.price === null || formData.price === undefined || !formData.type) {
       toast.warning("Please fill required fields");
       return;
     }
